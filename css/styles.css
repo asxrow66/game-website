@@ -1,8 +1,13 @@
 body {
-    color: #d3d3d3;
     background-color: #212121;
+    color: #d3d3d3;
+    text-align: center;
 }
 
 h1 {
+    text-align: center;
+}
+
+h2 {
     text-align: center;
 }
