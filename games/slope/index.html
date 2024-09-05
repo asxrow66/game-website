@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<script>
+    if (window.parent !== window.self) window.parent.postMessage("bonk", "*");
+    window.addEventListener("DOMContentLoaded", function () {
+        document.body.style.margin = "0";
+        document.body.style.height = "100vh";
+        document.body.style.overflow = "hidden";
+    });
+</script>
+<html lang="en-us">
+    <head>
+        <title>Slope</title>
+        <link rel="icon" href="favicon.ico">
+        <link href="style.css" rel="stylesheet" />
+        <link rel="stylesheet" href="TemplateData56/style.css" />
+        <script src="TemplateData56/UnityProgress.js"></script>
+        <link rel="shortcut icon" href="TemplateData/favicon.ico" />
+        <script src="Build/UnityLoader.js"></script>
+        <script>
+            var gameInstance = UnityLoader.instantiate("gameContainer", "Build/slope_27Sept.json", {
+                onProgress: UnityProgress,
+                Module: {
+                    onRuntimeInitialized: function () {
+                        UnityProgress(gameInstance, "complete");
+                    },
+                },
+            });
+        </script>
+        <link href="https://fonts.cdnfonts.com/css/monument-extended" rel="stylesheet">
+    </head>
+    <body>
+        <div class="webgl-content">
+            <div id="gameContainer" style="width: 100vw; height: 100vh;"></div>
+        </div>
+    </body>
+</html>

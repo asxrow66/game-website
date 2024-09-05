@@ -1,0 +1,39 @@
+body {
+    background-color: #212121;
+    color: #d3d3d3;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+h2 {
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+h4 {
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+a {
+    color: cornflowerblue;
+    text-decoration: none;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal
+    
+}
+
+a:hover {
+
+}
