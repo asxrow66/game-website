@@ -18,6 +18,13 @@ h2 {
     font-style: italic;
 }
 
+h4 {
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
 a {
     color: cornflowerblue;
     text-decoration: none;
