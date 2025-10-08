@@ -115,7 +115,12 @@ body {
 <link rel='apple-touch-icon' href='index.apple-touch-icon.png'/>
 <link rel='manifest' href='index.manifest.json'>
 <script src="coi-serviceworker.js"></script>
-	</head>
+	<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
 	<body>
 		<canvas id="canvas">
 			HTML5 canvas appears to be unsupported in the current browser.<br >

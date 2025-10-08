@@ -13,7 +13,12 @@
     <script>
       var gameInstance = UnityLoader.instantiate("gameContainer", "Build/Battle simulator.json", {onProgress: UnityProgress});
     </script>
-  </head>
+  <!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
   <body>
     <div class="webgl-content">
       <div id="gameContainer" style="width: 960px; height: 600px"></div>
