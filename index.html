@@ -4,14 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gateway Church — North Austin</title>
-  <meta name="description" content="Gateway Church North Austin, a place to connect and grow." />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Come as you are. Gather with us at Gateway Church — North Austin." />
+  <link rel="preload" href="assets/hero.jpg" as="image">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
       <a class="brand" href="./">Gateway Church</a>
-      <nav class="nav">
+      <nav class="nav" aria-label="Primary">
         <a href="pages/plan.html">Plan a Visit</a>
         <a href="pages/locations.html">Locations</a>
         <a href="pages/next.html">Next Steps</a>
@@ -21,72 +22,88 @@
     </div>
   </header>
 
-  <section class="hero">
-    <img src="assets/hero.jpg" alt="Gateway Church North Austin exterior" />
+  <section class="hero" role="banner" aria-label="Welcome">
+    <picture>
+      <img src="assets/hero.jpg" alt="Gateway Church North Austin exterior" />
+    </picture>
     <div class="hero-copy">
       <h1>Love Everyone, Life by Life.</h1>
       <p>There’s a place for you here—Sundays in North Austin.</p>
       <div class="hero-actions">
-        <a class="btn" href="hub/index.html">Plan a Visit</a>
+        <a class="btn" href="pages/plan.html">Plan a Visit</a>
       </div>
     </div>
   </section>
 
-  <main>
-    <section class="cards">
+  <main id="main">
+    <section id="plan" class="cards">
       <div class="wrap">
-        <h2>Plan Your Visit</h2>
+        <h2 class="section-title">Plan Your Visit</h2>
         <div class="grid">
           <article class="card">
             <h3>Service Times</h3>
-            <p>Sundays: 9:15 AM &amp; 11:15 AM</p>
-            <a class="btn" href="hub/index.html">Learn More</a>
+            <p><strong>Sundays:</strong> 9:15 AM &amp; 11:15 AM</p>
+            <p>Join us for worship, community, and life-giving teaching.</p>
+            <a class="btn" href="pages/plan.html">More Info</a>
           </article>
+
           <article class="card">
             <h3>Location</h3>
             <p>7104 McNeil Dr, Austin, TX 78729</p>
-            <a class="btn" href="hub/index.html">Directions</a>
+            <a class="btn" href="pages/locations.html">Get Directions</a>
           </article>
+
           <article class="card">
-            <h3>Kids & Students</h3>
-            <p>Safe and fun environments for all ages.</p>
+            <h3>Kids &amp; Students</h3>
+            <p>Safe, fun, age-specific environments during each service.</p>
+            <!-- Only button that links to the game site -->
             <a class="btn" href="hub/index.html">Details</a>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="callout">
+    <section id="next" class="callout">
       <div class="wrap">
         <h2>Next Steps</h2>
-        <p>Join a group, serve on a team, or connect with others.</p>
-        <a class="btn" href="hub/index.html">Get Connected</a>
+        <p>Join a group, serve on a team, or take a class to grow your faith and find community.</p>
+        <a class="btn" href="pages/next.html">Learn More</a>
       </div>
     </section>
 
-    <section class="cards">
+    <section id="messages" class="cards">
       <div class="wrap">
-        <h2>Latest Message</h2>
+        <h2 class="section-title">Latest Message</h2>
         <div class="grid">
           <article class="card">
-            <h3>Watch Online</h3>
-            <p>Catch the latest message anytime.</p>
-            <a class="btn" href="hub/index.html">Watch</a>
+            <h3>Watch Live</h3>
+            <p>Catch Sunday’s message live or on demand on YouTube.</p>
+            <a class="btn" target="_blank" rel="noopener"
+               href="https://www.youtube.com/channel/UCNEjnooRRpudDeiHKKqWVNA">Watch Now</a>
           </article>
           <article class="card">
             <h3>Message Archive</h3>
-            <p>Explore past series and stories.</p>
-            <a class="btn" href="hub/index.html">Explore</a>
+            <p>Explore past series and stories of life change.</p>
+            <a class="btn" href="pages/messages.html">View Messages</a>
+          </article>
+          <article class="card">
+            <h3>Stories of Impact</h3>
+            <p>See how God is changing lives through Gateway Church.</p>
+            <a class="btn" href="pages/next.html">Get Connected</a>
           </article>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer" id="contact">
     <div class="wrap">
-      <strong>Gateway Church — North Austin</strong><br />
-      7104 McNeil Dr, Austin, TX • Sundays 9:15 &amp; 11:15 AM
+      <div class="footer-left">
+        <strong>Gateway Church — North Austin</strong><br />
+        7104 McNeil Dr, Austin, TX • Sundays 9:15 &amp; 11:15 AM
+      </div>
+      <div class="footer-right">
+      </div>
     </div>
   </footer>
 
