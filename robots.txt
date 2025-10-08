@@ -1,23 +1,35 @@
-# Allow major search engines but disallow aggressive bots
+# Block everything by default (humans can still visit; this only tells bots)
 User-agent: *
-Disallow: /hub/          # block your game site from being indexed
-Crawl-delay: 10          # slow down generic crawlers
+Disallow: /
 
-# Block common scrapers and spam bots
+# Explicit AI / data-mining / SEO crawlers (belt-and-suspenders)
+User-agent: GPTBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
 User-agent: AhrefsBot
 Disallow: /
-
 User-agent: SemrushBot
 Disallow: /
-
 User-agent: MJ12bot
 Disallow: /
-
-User-agent: DotBot
-Disallow: /
-
 User-agent: DataForSeoBot
 Disallow: /
+User-agent: DotBot
+Disallow: /
+User-agent: PetalBot
+Disallow: /
+User-agent: archive.org_bot
+Disallow: /
 
-# Sitemap (helps search engines discover content)
-Sitemap: https://gatewaychurchtx.com/sitemap.xml
+# No sitemap provided since crawling is disallowed
