@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plan a Visit — Gateway Church</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Gateway Church</a>
+    <nav class="nav">
+      <a href="plan.html">Plan a Visit</a>
+      <a href="locations.html">Locations</a>
+      <a href="next.html">Next Steps</a>
+      <a href="messages.html">Messages</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <img src="../assets/hero.jpg" alt="North Austin campus lobby" />
+    <div class="hero-copy">
+      <h1>Plan a Visit</h1>
+      <p>Sundays • 9:15 AM &amp; 11:15 AM</p>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="wrap">
+      <div class="grid">
+        <article class="card">
+          <h3>What to Expect</h3>
+          <p>Friendly faces, modern worship, and a practical message. Dress casual.</p>
+        </article>
+        <article class="card">
+          <h3>Kids & Students</h3>
+          <p>Safe, fun environments with background-checked leaders during each service.</p>
+        </article>
+        <article class="card">
+          <h3>Parking</h3>
+          <p>Arrive 15 minutes early for first-time guest parking close to the entrance.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<script>
+const t=document.querySelector('.nav-toggle'),n=document.querySelector('.nav');
+t.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));n.classList.toggle('open');});
+</script>
+</body>
+</html>

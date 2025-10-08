@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Messages — Gateway Church</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .youtube-embed{ position:relative; aspect-ratio:16/9; width:100%; border-radius:16px; overflow:hidden; box-shadow:var(--shadow) }
+    .youtube-embed iframe{ position:absolute; inset:0; width:100%; height:100%; border:0 }
+    .center { text-align:center }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Gateway Church</a>
+    <nav class="nav">
+      <a href="plan.html">Plan a Visit</a>
+      <a href="locations.html">Locations</a>
+      <a href="next.html">Next Steps</a>
+      <a href="messages.html">Messages</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main class="page-content">
+  <section class="cards">
+    <div class="wrap">
+      <h1 class="section-title">Messages</h1>
+
+      <p class="center" style="margin-bottom:1rem;">
+        <a class="btn" target="_blank" rel="noopener"
+           href="https://www.youtube.com/channel/UCNEjnooRRpudDeiHKKqWVNA">
+          View All Sermons on YouTube
+        </a>
+      </p>
+
+      <div class="youtube-embed">
+        <iframe
+          src="https://www.youtube.com/embed?listType=user_uploads&list=UCNEjnooRRpudDeiHKKqWVNA"
+          title="Gateway Church Latest Sermon" allowfullscreen loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© 2025 Gateway Church North Austin</div>
+</footer>
+
+<script>
+const t=document.querySelector('.nav-toggle'),n=document.querySelector('.nav');
+t.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));n.classList.toggle('open');});
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next Steps — Gateway Church</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Gateway Church</a>
+    <nav class="nav">
+      <a href="plan.html">Plan a Visit</a>
+      <a href="locations.html">Locations</a>
+      <a href="next.html">Next Steps</a>
+      <a href="messages.html">Messages</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main class="page-content">
+  <section class="cards">
+    <div class="wrap">
+      <h1 class="section-title">Next Steps</h1>
+      <div class="grid">
+        <article class="card">
+          <h3>Join a Group</h3>
+          <p>Find community through small groups meeting across the city and online.</p>
+        </article>
+        <article class="card">
+          <h3>Serve on a Team</h3>
+          <p>Use your gifts to make a difference on Sundays and throughout the week.</p>
+        </article>
+        <article class="card">
+          <h3>Classes</h3>
+          <p>Foundations and growth courses to help you take your next step with Jesus.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="callout">
+    <div class="wrap">
+      <h2>New Here?</h2>
+      <p>We’d love to connect and help you discover your next step.</p>
+    </div>
+  </section>
+</main>
+
+
+
+<script>
+const t=document.querySelector('.nav-toggle'),n=document.querySelector('.nav');
+t.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));n.classList.toggle('open');});
+</script>
+</body>
+</html>

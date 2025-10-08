@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Locations — Gateway Church</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .map { width:100%; height:340px; border:0; border-radius:16px; box-shadow:var(--shadow); }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Gateway Church</a>
+    <nav class="nav">
+      <a href="plan.html">Plan a Visit</a>
+      <a href="locations.html">Locations</a>
+      <a href="next.html">Next Steps</a>
+      <a href="messages.html">Messages</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main class="page-content">
+  <section class="cards">
+    <div class="wrap">
+      <h1 class="section-title">Find a Campus</h1>
+
+      <div class="grid">
+        <article class="card">
+          <img src="../assets/north.jpg" alt="North Austin campus" />
+          <h3>North Austin</h3>
+          <p>7104 McNeil Dr, Austin, TX 78729</p>
+          <iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=7104+McNeil+Dr,+Austin,+TX+78729&output=embed"></iframe>
+        </article>
+
+        <article class="card">
+          <img src="../assets/south.jpg" alt="South Austin campus" />
+          <h3>South Austin</h3>
+          <p>6800 West Gate Blvd, Austin, TX 78745</p>
+          <iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=6800+West+Gate+Blvd,+Austin,+TX+78745&output=embed"></iframe>
+        </article>
+
+        <article class="card">
+          <img src="../assets/buda.jpg" alt="Buda campus" />
+          <h3>Buda</h3>
+          <p>300 Windsong Trl, Buda, TX 78610</p>
+          <iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=300+Windsong+Trl,+Buda,+TX+78610&output=embed"></iframe>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+
+<script>
+const t=document.querySelector('.nav-toggle'),n=document.querySelector('.nav');
+t.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));n.classList.toggle('open');});
+</script>
+</body>
+</html>
