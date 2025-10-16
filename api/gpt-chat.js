@@ -1,96 +1,93 @@
-// File: api/gpt-chat.js
-// Hardened to only allow chat completions via gpt-4o-mini
-
+// api/gpt-chat.js
 const ALLOWED_MODEL = "gpt-4o-mini";
-const MAX_TOKENS = 600;          // clamp output
-const MAX_MSGS = 20;             // last 20 messages
-const MAX_CHARS = 4000;          // basic size limit per message
-
-function isSameOrigin(req) {
-  // Vercel provides these headers; this blocks cross-site use
-  const origin = req.headers.origin || "";
-  const host = req.headers.host || req.headers["x-forwarded-host"] || "";
-  try {
-    if (!origin) return true; // direct curl/etc.
-    const o = new URL(origin);
-    return o.host === host;
-  } catch { return false; }
-}
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 export default async function handler(req, res) {
-  // Method allowlist
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).send("Method not allowed");
   }
 
-  if (!isSameOrigin(req)) {
-    return res.status(403).send("Forbidden");
-  }
-
-  // Content-type check
-  const ct = req.headers["content-type"] || "";
-  if (!ct.includes("application/json")) {
-    return res.status(400).send("Bad request");
-  }
-
-  let body;
-  try {
-    body = req.body ?? JSON.parse(await new Promise((r) => {
-      let data=""; req.on("data", c => data+=c); req.on("end", () => r(data));
-    }));
-  } catch {
-    return res.status(400).send("Invalid JSON");
-  }
-
-  // Validate and sanitize messages
-  const messages = Array.isArray(body?.messages) ? body.messages.slice(-MAX_MSGS) : null;
-  if (!messages || !messages.every(m => m && typeof m.role === "string" && typeof m.content === "string")) {
-    return res.status(400).send("messages must be an array of {role, content} strings");
-  }
-  for (const m of messages) {
-    if (m.content.length > MAX_CHARS) {
-      return res.status(400).send("message too long");
-    }
-  }
-
-  // Require API key
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return res.status(500).send("Server misconfig: missing OPENAI_API_KEY");
+  if (!apiKey) return res.status(500).send("Missing OPENAI_API_KEY");
+
+  let messages = [];
+  try {
+    messages = req.body?.messages;
+    if (!Array.isArray(messages)) throw new Error("messages must be an array");
+  } catch {
+    return res.status(400).send("Bad request: messages must be an array");
+  }
 
   try {
-    // >>> Chat-only call (no proxying to other endpoints)
-    const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
+    const upstream = await fetch(OPENAI_URL, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: ALLOWED_MODEL,         // hard-enforced
+        model: ALLOWED_MODEL,
         messages,
-        max_tokens: MAX_TOKENS,       // clamp output cost
         temperature: 0.7,
-        stream: true,                 // streaming only
+        stream: true,
       }),
     });
 
     if (!upstream.ok || !upstream.body) {
-      const text = await upstream.text();
-      // Do not leak upstream text to end users in prod; log server-side instead
-      res.status(upstream.status).send("Upstream error");
-      console.error("OpenAI upstream error:", upstream.status, text);
-      return;
+      const t = await upstream.text().catch(() => "");
+      console.error("OpenAI upstream:", upstream.status, t);
+      return res.status(502).send("Upstream error");
     }
 
-    // Stream back to client
+    // Prepare streaming text back to the client
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Transfer-Encoding", "chunked");
-    for await (const chunk of upstream.body) res.write(chunk);
+
+    const reader = upstream.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSE frames are separated by \n\n
+      let idx;
+      while ((idx = buffer.indexOf("\n\n")) !== -1) {
+        const frame = buffer.slice(0, idx).trim();
+        buffer = buffer.slice(idx + 2);
+
+        // Each line in the frame can be "data: ..."
+        for (const line of frame.split("\n")) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+
+          const payload = trimmed.slice(5).trim(); // after "data:"
+          if (payload === "[DONE]") {
+            res.end();
+            return;
+          }
+
+          try {
+            const json = JSON.parse(payload);
+            const choice = json?.choices?.[0];
+            const deltaText = choice?.delta?.content ?? "";
+            if (deltaText) res.write(deltaText);
+          } catch (e) {
+            // Non-JSON keep-alives or event types we don't care about
+            // console.debug("Non-JSON SSE line:", payload);
+          }
+        }
+      }
+    }
+
     res.end();
   } catch (err) {
     console.error("Server error:", err);
-    res.status(502).send("Upstream unavailable");
+    res.status(500).send("Internal error");
   }
 }
