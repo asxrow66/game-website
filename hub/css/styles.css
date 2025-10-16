@@ -4,43 +4,40 @@ body {
     text-align: center;
 }
 
-h1 {
+h1, h2, h3, h4 {
     text-align: center;
     font-family: "Poppins", sans-serif;
     font-weight: 600;
     font-style: italic;
 }
 
-h2 {
-    text-align: center;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-style: italic;
-}
-
-h3 {
-    text-align: center;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-style: italic;   
-}
-
-h4 {
-    text-align: center;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-style: italic;
-}
-
+/* links in the game list */
 a {
     color: cornflowerblue;
     text-decoration: none;
     font-family: "Poppins", sans-serif;
     font-weight: 600;
-    font-style: normal
-    
+    font-style: normal;
 }
 
 a:hover {
+    text-decoration: underline;
+}
 
+/* Heading-sized clickable text:
+   - zero box styling (no padding, borders, background)
+   - inherits exact <h2> typography and centering
+   - looks like a link on hover
+*/
+.h2-link {
+    all: unset;             /* strip default button UI */
+    cursor: pointer;
+    display: inline;        /* behave like plain heading text */
+    font: inherit;          /* EXACTLY match <h2> font-size, weight, style */
+    color: cornflowerblue;  /* use your link color for the text */
+    text-decoration: none;
+}
+
+.h2-link:hover {
+    text-decoration: underline;
 }
