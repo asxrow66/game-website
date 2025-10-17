@@ -1,43 +1,107 @@
-body {
-    background-color: #212121;
-    color: #d3d3d3;
-    text-align: center;
+:root{
+  --brand:#0d5be1;
+  --panel:#1b1b1c;
+  --panel-2:#111111;
+  --text:#f5f7fa;
+  --muted:#cfd6e0;
+  --ink:#111214;
+  --white:#ffffff;
+  --radius-xl:36px;
+  --radius-lg:28px;
+  --radius-md:18px;
+  --gap:18px;
+  --shadow:0 24px 60px rgba(0,0,0,.35);
+  --shadow-soft:0 10px 30px rgba(0,0,0,.25);
+  --accent:#10a37f;
+  --card-border:#26282b;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--brand);
+  color:var(--text);
+  font:400 16px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Apple Color Emoji","Segoe UI Emoji";
+  font-style:normal;
+}
+i,em{font-style:normal !important}
+
+.wrap{min-height:100dvh;padding:24px;display:flex;flex-direction:column;gap:24px}
+
+/* Title */
+.title{font-weight:900;letter-spacing:1px;text-align:center;font-size:clamp(28px,6vw,64px)}
+
+/* Columns */
+.cols{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+@media (max-width: 980px){.cols{grid-template-columns:1fr;}}
+
+/* Left column */
+.left{
+  background:var(--panel);
+  border-radius:var(--radius-xl);
+  padding:28px;
+  border:1px solid var(--card-border);
+  box-shadow:var(--shadow-soft);
+}
+.left h2{margin:0 0 18px 0;font-size:42px;line-height:1;font-weight:900}
+.left h3{margin:16px 0 8px;font-size:14px;letter-spacing:.2px;color:var(--muted)}
+.notes{display:grid;gap:12px}
+.note{background:var(--panel-2);border:1px solid var(--card-border);border-radius:14px;padding:12px 14px}
+.note strong{display:block}
+
+/* Right column */
+.right{border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+.reqbar{display:block;background:var(--white);color:#141618;text-align:center;font-weight:800;padding:18px 16px;font-size:clamp(16px,2.6vw,26px);text-decoration:none}
+.tray{background:#151617;padding:18px;border-top:1px solid var(--card-border)}
+
+/* Scrollable games area */
+.games{height:min(70vh, 820px);overflow:auto;background:#1a1b1c;border-radius:0 0 var(--radius-xl) var(--radius-xl);padding:18px}
+.grid{display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px}
+@media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:540px){.grid{grid-template-columns:1fr}}
+
+/* Card without images: square tile + name */
+.card{background:#0f1011;border:1px solid var(--card-border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.tile{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  background:#0a0b0c;
+  display:grid;place-items:center;
+  text-decoration:none;color:#e6e8eb;
+  transition:transform .15s ease, background .15s ease;
+}
+.tile:hover{transform:translateY(-2px);background:#121314}
+.tile-text{font-weight:800;text-align:center;padding:10px 12px}
+
+/* Name line */
+.card .meta{padding:10px 12px;text-align:center;border-top:1px solid var(--card-border)}
+.name{font-weight:700}
+
+/* Toolbar & buttons */
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.search{flex:1 1 auto;background:#0f1011;border:1px solid var(--card-border);border-radius:12px;padding:10px 12px;color:var(--text);outline:0}
+.btn{background:#0f1011;border:1px solid var(--card-border);color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer}
+
+.hint{color:#b8bec8;font-size:12px;text-align:right;margin-top:6px}
+
+/* Make anchor buttons look identical to real buttons */
+.notes .btn{
+  display:block;            /* full-width like the others */
+  width:100%;
+  text-align:center;
+  border-radius:12px;
 }
 
-h1, h2, h3, h4 {
-    text-align: center;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-style: italic;
+a.btn{                      /* kill underline + keep color */
+  text-decoration:none;
+  color:var(--text);
 }
 
-/* links in the game list */
-a {
-    color: cornflowerblue;
-    text-decoration: none;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-style: normal;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Heading-sized clickable text:
-   - zero box styling (no padding, borders, background)
-   - inherits exact <h2> typography and centering
-   - looks like a link on hover
-*/
-.h2-link {
-    all: unset;             /* strip default button UI */
-    cursor: pointer;
-    display: inline;        /* behave like plain heading text */
-    font: inherit;          /* EXACTLY match <h2> font-size, weight, style */
-    color: cornflowerblue;  /* use your link color for the text */
-    text-decoration: none;
-}
-
-.h2-link:hover {
-    text-decoration: underline;
+a.btn:hover,
+a.btn:focus{
+  text-decoration:none;
+  filter:brightness(1.05);
+  outline: none;
 }
