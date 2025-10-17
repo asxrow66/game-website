@@ -4,18 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Google</title>
+  <link rel="stylesheet" href="styles.css" />
+<link rel="icon" href=".../favicon.ico" type="image/x-icon">
 
-  <!-- Favicon: go up one level to /hub/favicon.ico -->
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
-
+   
   <!-- Vercel Web Analytics -->
   <script>
     window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
 
   <!-- Markdown + Syntax Highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -26,7 +23,14 @@
   <div id="app">
     <header>
       <h1>ChatGPT</h1>
-      <button id="new-chat-btn">＋ New Chat</button>
+      <div class="actions">
+        <label class="switch" title="Use internet search for this message">
+          <input type="checkbox" id="use-web">
+          <span class="slider"></span>
+          <span class="label">🌐 Use Web</span>
+        </label>
+        <button id="new-chat-btn">＋ New Chat</button>
+      </div>
     </header>
 
     <main id="chat"></main>
