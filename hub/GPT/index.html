@@ -5,41 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Google</title>
   <link rel="stylesheet" href="styles.css" />
-<link rel="icon" href=".../favicon.ico" type="image/x-icon">
-
-   
-  <!-- Vercel Web Analytics -->
-  <script>
-    window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="icon" href=".../favicon.ico" />
 
   <!-- Markdown + Syntax Highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css"
+  />
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>ChatGPT</h1>
-      <div class="actions">
-        <label class="switch" title="Use internet search for this message">
-          <input type="checkbox" id="use-web">
-          <span class="slider"></span>
-          <span class="label">🌐 Use Web</span>
-        </label>
-        <button id="new-chat-btn">＋ New Chat</button>
-      </div>
-    </header>
+  <header>
+    <div class="brand">ChatGPT</div>
+    <div class="actions">
+      <label class="switch">
+        <input type="checkbox" id="use-web" />
+        <span class="slider"></span>
+        <span class="label">🌐 Use Web</span>
+      </label>
+      <button id="new-chat-btn" title="New Chat">＋ New Chat</button>
+    </div>
+  </header>
 
-    <main id="chat"></main>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-header">Your Chats</div>
+      <ul id="conv-list"></ul>
+    </aside>
 
-    <form id="composer">
-      <textarea id="prompt" placeholder="Send a message..." rows="1"></textarea>
-      <button type="submit" id="send-btn" aria-label="Send message">➤</button>
-    </form>
+    <!-- Main Chat -->
+    <main id="chat" class="chat-window"></main>
   </div>
+
+  <!-- Composer -->
+  <form id="composer" autocomplete="off">
+    <textarea
+      id="prompt"
+      placeholder="Send a message..."
+      rows="1"
+      autofocus
+    ></textarea>
+    <button type="submit" id="send-btn" title="Send">➤</button>
+  </form>
 
   <script src="script.js"></script>
 </body>
