@@ -1,8 +1,14 @@
-// db.js — tiny Postgres pool
+// db.js
 import pg from "pg";
-const pool = new pg.Pool({
+const { Pool } = pg;
+
+// Create a connection pool to your Postgres database (Neon works great)
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 3,
+  ssl: { rejectUnauthorized: false }, // Required for Neon
 });
-export default pool;
+
+// Export a simple query helper
+export default {
+  query: (text, params) => pool.query(text, params),
+};

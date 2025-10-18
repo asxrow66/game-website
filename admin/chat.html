@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f0f10; --panel:#151515; --panel-2:#1b1b1f; --border:#2a2a2a; --text:#e7e7e7;
+      --muted:#a9afb8; --brand:#4c8bf5; --brand-2:#3a72cf;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter}
+    header{
+      display:flex; align-items:center; gap:10px; padding:12px 14px;
+      border-bottom:1px solid var(--border); background:var(--panel);
+      flex-wrap:wrap;
+    }
+    input, select, textarea, button{
+      font:inherit; color:inherit; background:var(--panel-2); border:1px solid var(--border);
+      border-radius:10px; padding:8px 10px; outline:none;
+    }
+    input:focus, select:focus, textarea:focus{ border-color:#3a4a7a }
+    #secret{ min-width:260px }
+    #model{ min-width:240px }
+    #system{ flex:1 1 420px }
+    #clear{ background:#27272f; cursor:pointer }
+    #back{ background:#27272f; text-decoration:none; display:inline-flex; align-items:center; gap:6px }
+
+    .layout{ height:calc(100vh - 60px - 80px); display:grid; grid-template-columns:1fr; }
+    #chat{ overflow:auto; padding:18px 20px; }
+    .message{ max-width:900px; margin:0 auto 14px; padding:14px 16px; border-radius:14px; border:1px solid var(--border); line-height:1.55; }
+    .user{ background:#17181f; }
+    .assistant{ background:#111214; }
+    pre{ background:#0d0f14; border:1px solid #222732; border-radius:10px; padding:12px; overflow:auto; }
+
+    /* Composer */
+    #composer{
+      position:fixed; left:0; right:0; bottom:0; background:var(--panel); border-top:1px solid var(--border);
+      padding:10px 12px; display:grid; grid-template-columns:1fr 48px; gap:8px; align-items:center; height:80px;
+    }
+    #prompt{ height:60px; resize:none }
+    #send{ height:60px; background:var(--brand); border-color:#355fb7; color:#fff; font-weight:600; cursor:pointer }
+    #send:hover{ background:var(--brand-2) }
+
+    /* small helper row */
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .spacer{ flex:1 1 auto }
+  </style>
+
+  <!-- Markdown + code highlight (same as your user chat) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css" />
+</head>
+<body>
+  <header>
+    <a id="back" href="/admin/" title="Back to Admin">⬅ Admin</a>
+    <input id="secret" type="password" placeholder="ADMIN_SECRET" />
+    <select id="model" title="Choose model">
+      <!-- Popular, fast + cheap first -->
+      <option value="gpt-4o-mini-2024-07-18" selected>gpt-4o-mini-2024-07-18 (fast/cheap)</option>
+      <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+      <!-- Heavier options -->
+      <option value="gpt-4o-2024-08-06">gpt-4o-2024-08-06</option>
+      <!-- Add any others you’ve enabled -->
+    </select>
+    <input id="system" type="text" placeholder="(Optional) System prompt e.g. 'You are my dev assistant.'" />
+    <button id="clear" type="button" title="Clear">Clear</button>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="layout">
+    <main id="chat"></main>
+  </div>
+
+  <form id="composer" autocomplete="off">
+    <textarea id="prompt" placeholder="Type a message… (Enter = send, Shift+Enter = newline)"></textarea>
+    <button id="send" type="submit" title="Send">➤</button>
+  </form>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    const chat = $("#chat");
+    const secretInput = $("#secret");
+    const modelSelect = $("#model");
+    const systemInput = $("#system");
+    const clearBtn = $("#clear");
+    const form = $("#composer");
+    const promptInput = $("#prompt");
+    const sendBtn = $("#send");
+
+    // persist secret + last model locally (only in this browser)
+    const SKEY = "admin_secret";
+    const MKEY = "admin_model";
+    const SYSKEY = "admin_system";
+
+    secretInput.value = sessionStorage.getItem(SKEY) || "";
+    modelSelect.value = sessionStorage.getItem(MKEY) || modelSelect.value;
+    systemInput.value = sessionStorage.getItem(SYSKEY) || "";
+
+    secretInput.addEventListener("input", ()=> sessionStorage.setItem(SKEY, secretInput.value));
+    modelSelect.addEventListener("change", ()=> sessionStorage.setItem(MKEY, modelSelect.value));
+    systemInput.addEventListener("input", ()=> sessionStorage.setItem(SYSKEY, systemInput.value));
+
+    let messages = [];
+
+    function addMessage(role, content){
+      const div = document.createElement("div");
+      div.className = `message ${role}`;
+      div.innerHTML = role === "assistant" ? marked.parse(content) : content;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      chat.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
+      return div;
+    }
+
+    function clearChat(){
+      messages = [];
+      chat.innerHTML = "";
+    }
+
+    clearBtn.onclick = () => clearChat();
+
+    // Enter = send, Shift+Enter = newline
+    promptInput.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const text = promptInput.value.trim();
+      if (!text) return;
+
+      // UI lock
+      sendBtn.disabled = true;
+      promptInput.disabled = true;
+
+      addMessage("user", text);
+      messages.push({ role:"user", content:text });
+      promptInput.value = "";
+
+      const payload = {
+        model: modelSelect.value,
+        messages,
+        system: systemInput.value || null
+      };
+
+      try{
+        const res = await fetch("/api/admin/admin-chat", {
+          method:"POST",
+          headers: {
+            "Content-Type":"application/json",
+            "x-admin-secret": secretInput.value.trim()
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok || !res.body) {
+          const errTxt = await res.text().catch(()=>res.statusText);
+          console.error("Admin chat error:", res.status, errTxt);
+          addMessage("assistant", "⚠️ Error talking to the model. Check console and your admin secret.");
+        } else {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let reply = "";
+          const aiMsg = addMessage("assistant", "");
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            reply += decoder.decode(value);
+            aiMsg.innerHTML = marked.parse(reply);
+            chat.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
+            chat.scrollTop = chat.scrollHeight;
+          }
+          messages.push({ role:"assistant", content: reply });
+        }
+      } catch (err) {
+        console.error(err);
+        addMessage("assistant", "⚠️ Network error. Check the console / API route.");
+      } finally {
+        sendBtn.disabled = false;
+        promptInput.disabled = false;
+        promptInput.focus();
+      }
+    });
+  </script>
+</body>
+</html>

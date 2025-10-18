@@ -2,29 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Google</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatGPT</title>
+  <link rel="icon" href="/favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href=".../favicon.ico" />
 
   <!-- Markdown + Syntax Highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css"
-  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css" />
 </head>
 <body>
   <header>
     <div class="brand">ChatGPT</div>
     <div class="actions">
-      <label class="switch">
-        <input type="checkbox" id="use-web" />
-        <span class="slider"></span>
-        <span class="label">🌐 Use Web</span>
-      </label>
-      <button id="new-chat-btn" title="New Chat">＋ New Chat</button>
+      <!-- header actions intentionally minimal now -->
+      <button id="new-chat-btn" class="btn">＋ New Chat</button>
     </div>
   </header>
 
@@ -33,21 +26,36 @@
     <aside id="sidebar">
       <div class="sidebar-header">Your Chats</div>
       <ul id="conv-list"></ul>
+
+      <!-- Sidebar footer note -->
+      <div class="sidebar-footer">
+        <span>Chats that haven't been messaged within 14 days will be automatically deleted</span>
+      </div>
     </aside>
 
-    <!-- Main Chat -->
+    <!-- Chat Window -->
     <main id="chat" class="chat-window"></main>
   </div>
 
   <!-- Composer -->
   <form id="composer" autocomplete="off">
-    <textarea
-      id="prompt"
-      placeholder="Send a message..."
-      rows="1"
-      autofocus
-    ></textarea>
-    <button type="submit" id="send-btn" title="Send">➤</button>
+    <!-- Left column: Use Web toggle -->
+    <div class="composer-left">
+      <label class="switch">
+        <input type="checkbox" id="use-web" />
+        <span class="slider"></span>
+        <span class="label">🌐 Use Web</span>
+      </label>
+    </div>
+
+    <!-- Right column: input + send + disclaimer -->
+    <div class="composer-right">
+      <div class="input-row">
+        <textarea id="prompt" placeholder="Send a message..." rows="1" autofocus></textarea>
+        <button type="submit" id="send-btn" title="Send" aria-label="Send">➤</button>
+      </div>
+      <div id="input-note">Chats may be read by others.</div>
+    </div>
   </form>
 
   <script src="script.js"></script>

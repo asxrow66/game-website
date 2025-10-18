@@ -1,5 +1,5 @@
-// Frontend for ChatGPT-like UI with: sidebar, web toggle, citations,
-// Enter=send / Shift+Enter=newline, and refreshes sidebar after replies.
+// Full front-end logic: ChatGPT-like UI with sidebar, hover-trash delete,
+// web toggle, citations, streaming, Enter=send, Shift+Enter=newline, and errors.
 
 const chat = document.getElementById("chat");
 const form = document.getElementById("composer");
@@ -61,22 +61,90 @@ function addSourcesBar(afterEl, sources) {
 function clearChat() { chat.innerHTML=""; messages=[]; }
 
 /* ---------- Sidebar (user conversations) ---------- */
+async function deleteConversation(conversationId) {
+  const r = await fetch(`${API_BASE}/conversations`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "x-anon-id": anonId
+    },
+    body: JSON.stringify({ conversationId })
+  });
+  return r.status === 204;
+}
+
 function renderConversations(items) {
   convList.innerHTML = "";
-  items.forEach((c)=>{
+
+  items.forEach((c) => {
     const li = document.createElement("li");
-    li.textContent = c.title || "Untitled chat";
     if (c.id === currentConversationId) li.classList.add("active");
-    li.onclick = ()=>{ currentConversationId = c.id; [...convList.children].forEach(n=>n.classList.remove("active")); li.classList.add("active"); loadConversation(c.id); };
+
+    // Title with right-edge fade
+    const wrap = document.createElement("div");
+    wrap.className = "conv-title-wrap";
+    const titleEl = document.createElement("span");
+    titleEl.className = "conv-title";
+    titleEl.textContent = c.title || "Untitled chat";
+    wrap.appendChild(titleEl);
+
+    // Trash button (visible on hover)
+    const btn = document.createElement("button");
+    btn.className = "conv-trash";
+    btn.setAttribute("title", "Delete conversation");
+    btn.setAttribute("aria-label", "Delete conversation");
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        <path d="M10 11v6"></path>
+        <path d="M14 11v6"></path>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+      </svg>
+    `;
+
+    // Row click = open conversation
+    li.onclick = () => {
+      currentConversationId = c.id;
+      [...convList.children].forEach(n => n.classList.remove("active"));
+      li.classList.add("active");
+      loadConversation(c.id);
+    };
+
+    // Trash click = delete (don’t bubble to li)
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      const ok = confirm("Delete this conversation? This cannot be undone.");
+      if (!ok) return;
+
+      const success = await deleteConversation(c.id);
+      if (!success) {
+        alert("Failed to delete conversation.");
+        return;
+      }
+
+      if (currentConversationId === c.id) {
+        currentConversationId = null;
+        clearChat();
+        addMessage("assistant", "🗑️ Conversation deleted.");
+      }
+
+      await refreshSidebar();
+    };
+
+    li.appendChild(wrap);
+    li.appendChild(btn);
     convList.appendChild(li);
   });
 }
+
 async function listConversations() {
   const r = await fetch(`${API_BASE}/conversations`, { headers: { "x-anon-id": anonId } });
   if (!r.ok) return [];
   const j = await r.json();
   return j.conversations || [];
 }
+
 async function createConversation(title="New chat") {
   const r = await fetch(`${API_BASE}/conversations`, {
     method:"POST", headers:{ "Content-Type":"application/json" },
@@ -85,6 +153,7 @@ async function createConversation(title="New chat") {
   if (!r.ok) throw new Error("Failed to create conversation");
   return r.json();
 }
+
 async function loadConversation(convId) {
   clearChat();
   const r = await fetch(`${API_BASE}/messages?conversationId=${encodeURIComponent(convId)}`, {
@@ -131,11 +200,9 @@ async function sendMessage(text) {
     return;
   }
 
-  // Persist conversation id (created server-side on first send)
   const cid = res.headers.get("X-Conversation-Id");
   if (cid) currentConversationId = cid;
 
-  // Sources (when web was used)
   const webUsed = res.headers.get("X-Web-Used") === "1";
   let webSources = [];
   if (webUsed) {
@@ -158,9 +225,7 @@ async function sendMessage(text) {
     messages.push({ role:"assistant", content:reply });
     if (webUsed) addSourcesBar(aiMsg, webSources);
 
-    // Title generation happens on the server after first reply.
-    // Refresh sidebar now so the new title appears like ChatGPT.
-    await refreshSidebar();
+    await refreshSidebar(); // picks up the generated title after first reply
   } catch (err) {
     console.error("Streaming error:", err);
     addMessage("assistant","There is an issue connecting to ChatGPT, please try again later.");
