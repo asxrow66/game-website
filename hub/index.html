@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Google</title>
 
-  <!-- Favicon (relative so it works on file:// and http) -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-
-  <!-- Vercel Web Analytics -->
   <script>
     window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  
+  <script src="proxy/index.js"></script> 
+  <script src="proxy/scramjet.config.js"></script> 
+  
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Optional font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -27,7 +26,6 @@
     <div class="title">GAME HUB</div>
 
     <section class="cols">
-      <!-- Left: Announcements / Patch Notes -->
       <aside class="left">
         <h2>NEW:</h2>
         <div class="notes" id="notes"></div>
@@ -40,9 +38,13 @@
         </div>
       </aside>
 
-      <!-- Right: Request link + Scrollable Games Panel -->
       <section class="right">
-        <a id="requestLink" class="reqbar" href="#" target="_blank" rel="noopener">REQUEST GAMES/FEEDBACK</a>
+          
+          <div class="url-launcher">
+              <input id="proxyUrlInput" class="search" type="text" placeholder="Enter URL (YouTube, Discord, etc.) or search Google..." autocomplete="off" />
+              <button class="btn" id="launchProxyBtn">GO</button>
+          </div>
+          <a id="requestLink" class="reqbar" href="#" target="_blank" rel="noopener">REQUEST GAMES/FEEDBACK</a>
 
         <div class="tray">
           <div class="toolbar">
@@ -60,7 +62,7 @@
   </div>
 
 <script>
-  // ========= CONFIG =========
+  // ========= CONFIG (Your existing config) =========
   const REQUEST_FORM_URL = 'https://forms.gle/e1hmtjsAyKKSojeT8';
   const ANNOUNCEMENTS = [
     { title:'Notes', items:[
@@ -68,11 +70,13 @@
       'ADDED: ChatGPT + quick action',
       'ADDED: ChatGPT Chat History',
       'ADDED: about:blank launcher (Alt+Click on any game)',
+      'ADDED: FULL WEB PROXY FOR UNBLOCKING YOUTUBE, DISCORD, REDDIT, TIKTOK, etc.',
     ]}
   ];
-
+  
   // ========= YOUR FULL GAME LIST (name + local route) =========
   const GAMES = [
+    { name:'Proxy Browser', url:'/hub/service/https://www.google.com/' }, // Default proxy start page
     { name:'ChatGPT', url:'/hub/GPT/' },
     { name:'1 on 1 Soccer', url:'/hub/games/1on1soccer/index.html' },
     { name:'2048', url:'/hub/games/2048/' },
@@ -234,7 +238,7 @@
     { name:'Vex 7', url:'/hub/games/vex7/index.html' },
     { name:'Watermelon Suika', url:'/hub/games/watermelongame/index.html' },
     { name:'World’s Hardest Game', url:'/hub/games/worldshardestgame/index.html' },
-    { name:'World’s Hardest Game 2', url:'/hub/games/worldshardestgame2/index.html' },
+    { name:'World’s Hardest Game 2', url:'/hub/games/worldshardestgame2/index.html' }
   ];
 
   // ========= Announcements + Request link =========
@@ -248,7 +252,7 @@
     notesEl.appendChild(group);
   });
 
-  // ========= Grid / Search =========
+  // ========= Grid / Search (Corrected) =========
   const grid = document.getElementById('grid');
 
   function render(list){
@@ -256,12 +260,17 @@
     list.forEach(game => {
       const card = document.createElement('article');
       card.className = 'card';
+      
+      // Use game.url directly, the proxy redirects handle the rest
+      const finalUrl = game.url; 
+      
       card.innerHTML = `
-        <a class="tile" href="${game.url}" title="${game.name}">
+        <a class="tile" href="${finalUrl}" title="${game.name}">
           <span class="tile-text">${game.name}</span>
         </a>
         <div class="meta"><div class="name">${game.name}</div></div>
       `;
+      
       // Alt+Click -> about:blank wrapper
       card.addEventListener('click', (e)=>{
         const link = card.querySelector('a.tile');
@@ -285,7 +294,7 @@
     render(filtered);
   }
 
-  // ========= about:blank helpers & quick actions =========
+  // ========= about:blank helpers & quick actions (Your Existing Code) =========
   function openInAboutBlank(url){
     const w = window.open('about:blank','_blank');
     if(!w){ alert('Popup blocked. Enable popups and try again.'); return; }
@@ -299,6 +308,54 @@
     if(e.altKey){ e.preventDefault(); openInAboutBlank(new URL('/hub/GPT/', location.href).href); }
   });
 
+  // ========= PROXY LAUNCHER SCRIPTS (SCRAMJET VERSION) =========
+  const GOOGLE_SEARCH_URL = 'https://www.google.com/search?q=';
+    
+  function launchProxy(url) {
+      if (!url) return;
+      
+      let finalUrl = url.trim();
+      const isURL = finalUrl.includes('.') || finalUrl.startsWith('http');
+
+      if (!isURL) {
+          finalUrl = GOOGLE_SEARCH_URL + encodeURIComponent(finalUrl);
+      } else if (!finalUrl.startsWith('http')) {
+          finalUrl = 'https://' + finalUrl;
+      }
+
+      // Use Scramjet's config and encoder to redirect
+      const encodedUrl = self.__scramjet$config.prefix + self.__scramjet$config.encodeUrl(finalUrl);
+      window.location.href = encodedUrl; 
+  }
+
+  // Event listener for the GO button
+  const urlInput = document.getElementById('proxyUrlInput');
+  document.getElementById('launchProxyBtn').addEventListener('click', () => {
+      launchProxy(urlInput.value);
+  });
+    
+  // Event listener for the Enter key press
+  urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+          e.preventDefault();
+          launchProxy(urlInput.value);
+      }
+  });
+
+  // 4. Register the Service Worker (Crucial for Scramjet to function)
+  if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+          navigator.serviceWorker.register('proxy/sw.js', {
+              scope: self.__scramjet$config.prefix, 
+          }).then(reg => {
+              console.log('Scramjet Service Worker registered.', reg);
+          }).catch(err => {
+              console.error('Scramjet Service Worker registration failed:', err);
+          });
+      });
+  }
+  // ========= END PROXY LAUNCHER SCRIPTS =========
+    
   // ========= BOOT =========
   CURRENT = [...GAMES];
   apply(); // render once

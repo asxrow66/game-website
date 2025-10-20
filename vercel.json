@@ -1,8 +1,56 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
       "path": "/api/admin/cleanup",
       "schedule": "0 8 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/scram/:file*",
+      "destination": "/hub/proxy/:file"
+    },
+    {
+      "source": "/hub/service/:file*.js",
+      "destination": "/hub/proxy/:file.js"
+    },
+    {
+      "source": "/hub/service/:file*.css",
+      "destination": "/hub/proxy/:file.css"
+    },
+    {
+      "source": "/hub/service/:file*.html",
+      "destination": "/hub/proxy/:file.html"
+    },
+    {
+      "source": "/hub/service/sw.js",
+      "destination": "/hub/proxy/sw.js"
+    },
+    {
+      "source": "/hub/service/:path*",
+      "destination": "https://aluu.xyz/bare/:path*" 
+    }
+  ],
+  
+  "headers": [
+    {
+      "source": "/hub/proxy/sw.js",
+      "headers": [
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/hub/service/"
+        }
+      ]
+    },
+    {
+      "source": "/hub/service/:path*",
+      "headers": [
+        {
+          "key": "CDN-Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
     }
   ]
 }
