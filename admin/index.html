@@ -1,247 +1,295 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Admin — Chats</title>
-  <style>
-    :root{
-      --bg:#0f0f10;
-      --panel:#151515;
-      --panel-2:#1c1c1f;
-      --border:#222;
-      --border-2:#2c2c2f;
-      --text:#e7e7e7;
-      --muted:#9aa0a6;
-      --brand:#4c8bf5;
-    }
-
-    body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:0; }
-    header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-    #secret { background:var(--panel-2); color:#fff; border:1px solid var(--border-2); border-radius:8px; padding:8px 10px; width:320px; }
-    #load, #purge { padding:8px 12px; border-radius:8px; border:0; background:var(--brand); color:#fff; cursor:pointer; }
-    #purge { background:#9146ff; }
-
-    main { display:grid; grid-template-columns: 380px 1fr; height: calc(100vh - 57px); }
-    aside { border-right:1px solid var(--border); overflow:auto; display:flex; flex-direction:column; min-height:0; }
-
-    .side-top { padding:12px; border-bottom:1px solid #202022; display:flex; flex-direction:column; gap:12px; }
-
-    /* Circular storage card */
-    .storage {
-      background:#17171a; border:1px solid #242428; border-radius:12px; padding:14px;
-      display:flex; align-items:center; gap:14px;
-    }
-    .storage h3 { margin:0 0 6px 0; font-size:14px; color:#d6d9df; }
-    .storage .right { display:flex; flex-direction:column; gap:4px; }
-    .storage .muted { color:var(--muted); font-size:12px; }
-
-    .gauge {
-      position:relative;
-      width:96px; height:96px;
-      display:inline-block;
-    }
-    .gauge svg {
-      width:96px; height:96px; display:block;
-      transform: rotate(-90deg);
-    }
-    .gauge .track {
-      stroke: #2a2a30; stroke-width:10; fill:none;
-    }
-    .gauge .progress {
-      stroke: var(--brand); stroke-width:10; fill:none;
-      stroke-linecap: round;
-      transition: stroke-dashoffset .6s ease;
-    }
-    /* inner black disk */
-    .gauge .inner {
-      position:absolute; inset:12px;
-      background: #0f0f10;
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      text-align:center; padding:6px;
-    }
-    .gauge .inner .percent {
-      color: var(--brand);
-      font-weight:700; font-size:14px; line-height:1.1;
-    }
-    .gauge .inner .numbers {
-      color: #cfd5df;
-      font-size:11.5px; margin-top:2px;
-    }
-
-    ul { list-style:none; padding:0; margin:0; }
-    #list { flex:1 1 auto; overflow:auto; }
-    li { padding:10px 12px; border-bottom:1px solid #202022; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:12px; }
-    li:hover { background:#17171a; }
-    li.active { background:#1c1c1f; }
-    .meta { font-size:12px; opacity:.8; }
-    #view { overflow:auto; padding:16px; }
-    .msg { background:#17171a; border:1px solid #242428; border-radius:10px; padding:10px 12px; margin-bottom:10px; }
-    .role { font-weight:700; margin-bottom:4px; font-size:12px; letter-spacing:.02em; opacity:.9; }
-    .meta2 { font-size:12px; opacity:.8; margin-left:6px; }
-    .del { background:#ff4d4f; color:#fff; border:0; border-radius:8px; padding:6px 8px; cursor:pointer; }
-    .rowL { display:flex; flex-direction:column; min-width:0; }
-    .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
-  </style>
-</head>
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<!-- /admin/index.html -->
+<link rel="stylesheet" href="/admin/index.css"></head>
 <body>
-  <header>
-    <input id="secret" type="password" placeholder="Enter ADMIN_SECRET" />
-    <button id="load">Load Conversations</button>
-    <button id="purge">Purge (enter cutoff)</button>
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="left">
+      <h1>Admin</h1>
+      <input id="admin-secret" type="password" placeholder="ADMIN_SECRET" />
+      <button id="load-btn" class="btn">Load Conversations</button>
+      <div class="search-wrap">
+        <input id="search-input" type="search" placeholder="Search titles or words…" />
+        <button id="search-btn" class="btn">Search</button>
+        <button id="search-clear" class="btn subtle" title="Clear search">✕</button>
+      </div>
+      <button id="purge-btn" class="btn danger" title='Delete conversations older than a period (e.g., "14d 2h")'>
+        Purge by Age
+      </button>
+    </div>
+    <div class="right">
+      <button id="open-admin-chat" class="btn primary" title="Open Admin Chat">
+        + Admin Chat
+      </button>
+    </div>
   </header>
 
-  <main>
-    <aside>
-      <div class="side-top">
-        <div class="storage">
-          <div class="gauge">
-            <svg viewBox="0 0 100 100">
-              <circle class="track" cx="50" cy="50" r="40"></circle>
-              <circle class="progress" id="gauge-progress" cx="50" cy="50" r="40"
-                      stroke-dasharray="251.327"
-                      stroke-dashoffset="251.327"></circle>
-            </svg>
-            <div class="inner">
-              <div>
-                <div class="percent" id="gauge-percent">--% used</div>
-                <div class="numbers" id="gauge-numbers">--/-- used</div>
-              </div>
-            </div>
-          </div>
-          <div class="right">
-            <h3>Storage</h3>
-            <div class="muted" id="storage-extra">Checking…</div>
+  <!-- Main layout -->
+  <main class="layout">
+    <!-- Sidebar: conversations + storage -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <span>Conversations</span>
+        <span id="result-count" class="muted small"></span>
+      </div>
+      <ul id="convo-list"></ul>
+
+      <div class="storage-card">
+        <div class="storage-title">Storage</div>
+        <div class="gauge-wrap">
+          <div class="gauge" id="gauge"></div>
+          <div class="gauge-center">
+            <div id="gauge-percent">0%</div>
+            <div id="gauge-mb" class="muted">0/0 MB</div>
           </div>
         </div>
+        <div id="storage-caption" class="muted small"></div>
       </div>
-      <ul id="list"></ul>
     </aside>
 
-    <section id="view"><em>Select a conversation…</em></section>
+    <!-- Messages panel -->
+    <section class="content">
+      <div id="messages" class="messages"></div>
+      <div id="empty-hint" class="muted center">Select a conversation to view messages.</div>
+    </section>
   </main>
 
   <script>
-    const $ = s => document.querySelector(s);
-    const list = $("#list"), view = $("#view"), secretInput = $("#secret");
-    const loadBtn = $("#load"), purgeBtn = $("#purge");
+    // ---------- Helpers ----------
+    const $ = (s) => document.querySelector(s);
+    const listEl = $("#convo-list");
+    const msgsEl = $("#messages");
+    const hintEl = $("#empty-hint");
+    const secretInput = $("#admin-secret");
+    const loadBtn = $("#load-btn");
+    const purgeBtn = $("#purge-btn");
+    const chatBtn = $("#open-admin-chat");
 
-    const gaugeProgress = $("#gauge-progress");
-    const gaugePercent = $("#gauge-percent");
-    const gaugeNumbers = $("#gauge-numbers");
-    const storageExtra = $("#storage-extra");
+    const searchInput = $("#search-input");
+    const searchBtn = $("#search-btn");
+    const searchClear = $("#search-clear");
+    const resultCount = $("#result-count");
 
-    const CIRC = 2 * Math.PI * 40;
+    const GAUGE = $("#gauge");
+    const GAUGE_PCT = $("#gauge-percent");
+    const GAUGE_MB = $("#gauge-mb");
+    const STORAGE_CAPTION = $("#storage-caption");
 
-    function fmt(dt){ try{ return new Date(dt).toLocaleString(); } catch { return dt; } }
-    function secret() {
-      const s = secretInput.value.trim() || sessionStorage.getItem("admin_secret") || "";
-      sessionStorage.setItem("admin_secret", s);
-      return s;
+    // Persist secret in session
+    const SKEY = "admin_secret";
+    secretInput.value = sessionStorage.getItem(SKEY) || "";
+    secretInput.addEventListener("input", () => {
+      sessionStorage.setItem(SKEY, secretInput.value);
+    });
+
+    function adminHeaders(extra={}) {
+      return { "x-admin-secret": secretInput.value.trim(), ...extra };
     }
 
-    async function fetchJSON(url, opts={}) {
-      const r = await fetch(url, {
-        ...opts,
-        headers: { "x-admin-secret": secret(), ...(opts.headers||{}) }
-      });
-      if (!r.ok) throw new Error(await r.text());
-      const ct = r.headers.get("content-type") || "";
-      return ct.includes("application/json") ? r.json() : r.text();
-    }
-
-    function setGauge(percentUsed, usedMb, quotaMb) {
-      const pct = Math.max(0, Math.min(100, percentUsed));
-      const dashOffset = CIRC * (1 - pct / 100);
-      gaugeProgress.setAttribute("stroke-dasharray", CIRC.toFixed(3));
-      gaugeProgress.setAttribute("stroke-dashoffset", dashOffset.toFixed(3));
-      gaugePercent.textContent = `${Math.round(pct)}% used`;
-      if (quotaMb != null) {
-        gaugeNumbers.textContent = `${Math.round(usedMb)}/${Math.round(quotaMb)} used`;
-      } else {
-        gaugeNumbers.textContent = `${Math.round(usedMb)} used`;
+    async function api(path, opts={}) {
+      const res = await fetch(path, { ...opts, headers: adminHeaders(opts.headers || {}) });
+      if (!res.ok) {
+        const t = await res.text().catch(()=>res.statusText);
+        throw new Error(t || ("HTTP "+res.status));
       }
+      const ct = res.headers.get("content-type") || "";
+      return ct.includes("application/json") ? res.json() : res.text();
     }
 
+    function humanTime(ts) {
+      try { return new Date(ts).toLocaleString(); } catch { return ts; }
+    }
+
+    function clearMessages() {
+      msgsEl.innerHTML = "";
+      hintEl.style.display = "block";
+    }
+
+    function addMsg(role, content, ts) {
+      hintEl.style.display = "none";
+      const row = document.createElement("div");
+      row.className = "msg";
+      row.innerHTML = `
+        <div class="role ${role}">${role}</div>
+        <div class="bubble">${content}</div>
+        <div class="time">${humanTime(ts)}</div>
+      `;
+      msgsEl.appendChild(row);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    function renderGauge(percent, usedMB, quotaMB) {
+      const pct = Math.max(0, Math.min(100, Math.round(percent)));
+      GAUGE.style.background = `conic-gradient(var(--brand) ${pct*3.6}deg, var(--gauge-bg) 0)`;
+      GAUGE_PCT.textContent = pct + "%";
+      GAUGE_MB.textContent = `${usedMB}/${quotaMB} MB`;
+    }
+
+    // ---------- Storage ----------
     async function loadStorage() {
       try {
-        const j = await fetchJSON("/api/admin/storage");
-        const usedMb = j.used_mb ?? 0;
-        const quotaMb = j.quota_mb;
-        if (quotaMb != null && quotaMb > 0) {
-          const percentUsed = Math.min(100, (usedMb / quotaMb) * 100);
-          setGauge(percentUsed, usedMb, quotaMb);
-          const leftMb = Math.max(0, quotaMb - usedMb);
-          storageExtra.textContent = `${Math.round(percentUsed)}% used · ${Math.round(leftMb)} MB left`;
-        } else {
-          setGauge(0, usedMb, null);
-          storageExtra.textContent = "Set STORAGE_QUOTA_MB to show usage percentage.";
-        }
+        const s = await api("/api/admin/storage");
+        const used = Number(s.used_mb || 0);
+        const quota = Number(s.quota_mb || 0);
+        const percentUsed = Number(s.percent_used || 0); // already 0–100 from your API
+        renderGauge(percentUsed, used.toFixed(1), quota.toFixed(0));
+        STORAGE_CAPTION.textContent = `Used ${used.toFixed(1)} MB of ${quota.toFixed(0)} MB`;
       } catch (e) {
-        console.error(e);
-        setGauge(0, 0, null);
-        storageExtra.textContent = "Unable to load storage.";
+        console.error("storage error:", e);
       }
     }
 
-    async function loadConversations() {
-      const data = await fetchJSON("/api/admin/get-conversations");
-      list.innerHTML = "";
-      (data.conversations || []).forEach(c => {
+    // ---------- Render conversations ----------
+    function highlight(text, q) {
+      if (!q) return text;
+      const terms = q.split(/\s+/).filter(Boolean);
+      let out = text;
+      for (const term of terms) {
+        const re = new RegExp("(" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+        out = out.replace(re, '<mark>$1</mark>');
+      }
+      return out;
+    }
+
+    function renderList(items, q=null) {
+      listEl.innerHTML = "";
+      if (!items.length) {
+        listEl.innerHTML = '<li class="muted small pad">No results.</li>';
+        return;
+      }
+      items.forEach(c => {
         const li = document.createElement("li");
-        const left = document.createElement("div"); left.className = "rowL";
-        left.innerHTML = `<div class="title">${c.title || "(untitled)"} <span class="meta">· ${c.owner_id || "anon"}</span></div>
-                          <div class="meta">${fmt(c.last_updated)}</div>`;
-        const del = document.createElement("button");
-        del.className = "del"; del.textContent = "Delete";
-        del.onclick = async e => {
+        li.className = "convo";
+        li.innerHTML = `
+          <div class="convo-main">
+            <div class="title" title="${c.title || "(untitled)"}">
+              ${highlight(c.title || "(untitled)", q || "")}
+              ${c.match ? `<span class="badge">in ${c.match}</span>` : ""}
+            </div>
+            <div class="meta">${humanTime(c.last_updated)}</div>
+          </div>
+          <button class="icon danger" title="Delete">🗑</button>
+        `;
+
+        const delBtn = li.querySelector(".icon.danger");
+        delBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
           if (!confirm("Delete this conversation?")) return;
-          await fetchJSON("/api/admin/delete-conversation", {
-            method:"POST", headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify({ conversationId: c.id })
-          });
-          await loadConversations(); await loadStorage();
-          view.innerHTML = "<em>Select a conversation…</em>";
-        };
-        li.append(left, del);
-        li.onclick = () => {
-          [...list.children].forEach(n=>n.classList.remove("active"));
+          try {
+            await api("/api/admin/delete-conversation", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ conversationId: c.id })
+            });
+            clearMessages();
+            await doLoad(); // reload list & storage
+          } catch (err) {
+            alert("Delete failed. See console."); console.error(err);
+          }
+        });
+
+        li.addEventListener("click", async () => {
+          document.querySelectorAll(".convo.active").forEach(n => n.classList.remove("active"));
           li.classList.add("active");
-          loadMessages(c.id);
-        };
-        list.appendChild(li);
+          await loadMessages(c.id);
+        });
+
+        listEl.appendChild(li);
       });
+    }
+
+    // ---------- Standard load (no search) ----------
+    async function loadConversations() {
+      const data = await api("/api/admin/get-conversations");
+      const items = data.conversations || [];
+      resultCount.textContent = items.length ? `${items.length}` : "";
+      renderList(items);
+      clearMessages();
     }
 
     async function loadMessages(conversationId) {
-      const data = await fetchJSON(`/api/admin/get-messages?conversationId=${encodeURIComponent(conversationId)}`);
-      view.innerHTML = "";
-      (data.messages || []).forEach(m => {
-        const d = document.createElement("div");
-        d.className = "msg";
-        d.innerHTML = `<div class="role">${m.role.toUpperCase()} <span class="meta2">${fmt(m.created_at)}</span></div>
-                       <div class="content"></div>`;
-        d.querySelector(".content").textContent = m.content;
-        view.appendChild(d);
-      });
+      msgsEl.innerHTML = "";
+      hintEl.style.display = "block";
+      try {
+        const data = await api(`/api/admin/get-messages?conversationId=${encodeURIComponent(conversationId)}`);
+        (data.messages || []).forEach(m => addMsg(m.role, m.content, m.created_at));
+      } catch (e) {
+        alert("Failed to load messages. See console."); console.error(e);
+      }
     }
 
-    loadBtn.onclick = async () => { await loadConversations(); await loadStorage(); };
-    purgeBtn.onclick = async () => {
-      const raw = prompt("Delete chats older than what cutoff? e.g. 14d, 12h, 9m, or 6s","14d");
-      if (!raw) return;
-      const val = raw.trim().toLowerCase();
-      const valid = /^(\d+)\s*[dhms]$/.test(val) || /^\d+$/.test(val);
-      if (!valid) return alert("Use 14d, 12h, 9m, 6s, or a number (days).");
-      if (!confirm(`Delete chats older than ${val}?`)) return;
-      const r = await fetchJSON("/api/admin/cleanup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cutoff:val})});
-      alert(`Deleted ${r.deleted} conversation(s) older than ${r.cutoff_label}`);
-      await loadConversations(); await loadStorage();
-    };
+    // ---------- Search ----------
+    async function doSearch() {
+      const q = searchInput.value.trim();
+      if (!q) { await loadConversations(); return; }
+      const data = await api(`/api/admin/search?q=${encodeURIComponent(q)}`);
+      const items = data.results || [];
+      resultCount.textContent = items.length ? `${items.length} result${items.length===1?"":"s"}` : "0 results";
+      renderList(items, q);
+      clearMessages();
+    }
+    function clearSearch() {
+      searchInput.value = "";
+      resultCount.textContent = "";
+    }
 
-    const saved = sessionStorage.getItem("admin_secret"); if (saved) secretInput.value = saved;
-    loadStorage();
+    // ---------- Purge by Age ----------
+    function parseDurationToSeconds(input) {
+      if (!input) return null;
+      const re = /(\d+)\s*([dhms])/gi;
+      let sec = 0, match;
+      while ((match = re.exec(input))) {
+        const n = parseInt(match[1], 10);
+        const u = match[2].toLowerCase();
+        if (u === "d") sec += n * 86400;
+        else if (u === "h") sec += n * 3600;
+        else if (u === "m") sec += n * 60;
+        else if (u === "s") sec += n;
+      }
+      return sec || null;
+    }
+    async function handlePurge() {
+      const input = prompt('Delete conversations older than… (e.g. "14d", "7d 12h", "90m")');
+      if (!input) return;
+      const seconds = parseDurationToSeconds(input);
+      if (!seconds) { alert("Could not parse that duration."); return; }
+      try {
+        await api("/api/admin/cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ olderThan: input }) // backend parses human string
+        });
+        alert("Cleanup complete.");
+        await doLoad();
+      } catch (e) {
+        alert("Cleanup failed. See console."); console.error(e);
+      }
+    }
+
+    // ---------- Events ----------
+    async function doLoad() {
+      await loadConversations();
+      await loadStorage();
+    }
+
+    loadBtn.addEventListener("click", doLoad);
+    purgeBtn.addEventListener("click", handlePurge);
+    chatBtn.addEventListener("click", () => location.href = "/admin/chat.html");
+
+    searchBtn.addEventListener("click", doSearch);
+    searchClear.addEventListener("click", async () => { clearSearch(); await doLoad(); });
+    searchInput.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") { e.preventDefault(); await doSearch(); }
+      if (e.key === "Escape") { clearSearch(); await doLoad(); }
+    });
+
+    // Initial auto-load if a secret is already present
+    if (secretInput.value.trim()) doLoad();
   </script>
 </body>
 </html>
