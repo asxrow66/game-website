@@ -53,7 +53,6 @@ async function saveMessage(conversationId, role, content, metadata = {}) {
 }
 
 /* ------------- Title helpers ------------- */
-// Generate a short, clean title (3–7 words) from the first user message
 async function generateTitle(apiKey, userFirstMessage) {
   const prompt = `Make a short chat title (3–7 words) for this user's first message.
 - No trailing punctuation
@@ -148,20 +147,16 @@ export default async function handler(req, res) {
   let conversationId = body?.conversationId || null;
   if (!messages) return res.status(400).send("messages must be an array");
 
-  // First user message (for title generation)
   const firstUserMsg = (messages.find(m => m.role === "user")?.content || "").trim();
 
-  // Conversation ownership / creation
   if (conversationId) {
     const ok = await assertOwner(conversationId, anonId);
     if (!ok) return res.status(403).send("Forbidden");
   } else {
-    // placeholder title; will be replaced by generated title later
     conversationId = await createConversation("New chat", anonId);
   }
   res.setHeader("X-Conversation-Id", conversationId);
 
-  // Save incoming user messages
   for (const m of messages.filter(m => m.role === "user")) {
     try {
       await saveMessage(conversationId, "user", String(m.content).slice(0, 10000), { webUsed: useWeb });
@@ -170,9 +165,37 @@ export default async function handler(req, res) {
     }
   }
 
-  // Build prompt, maybe with web sources
+  // --- Custom system prompt ---
+  const customSystemPrompt = `
+You are an advanced AI assistant designed to be clear, accurate, and helpful.
+
+Hard limits and continuity:
+- Do NOT produce 800+ words in a single message.
+- If the user requests 800 words or more, explicitly state the per-message limit (approx. 500–700 words) and proceed in numbered parts without asking permission. End each part with: "Reply CONTINUE for the next section."
+- If the user requests fewer than 800 words, deliver the full response in one coherent message.
+- Never stop mid-sentence. If nearing the limit, conclude the current section cleanly and prompt the user to send CONTINUE to proceed.
+
+Web awareness and citations:
+- When web search results are supplied in the system prompt, use ONLY those sources. Cite inline like [1], [2], etc., and include URLs when relevant.
+- If no sources are provided or search failed, answer without browsing and mention this briefly when it matters.
+
+Style and formatting:
+- Be precise, factual, and concise; avoid fluff.
+- Use clean Markdown with short headers, bullets, and examples when helpful.
+- Prefer step-by-step instructions for how-to requests.
+- If unsure, state the uncertainty and what would resolve it.
+
+Safety and honesty:
+- If a request exceeds limits or conflicts with instructions, say so clearly and propose a compliant alternative.
+
+Your default tone is professional, friendly, and confident.
+`;
+
+
+
   let enhancedMessages = messages;
   let webSources = [];
+
   if (useWeb) {
     try {
       const last = String(messages[messages.length - 1]?.content || "").trim();
@@ -186,13 +209,7 @@ export default async function handler(req, res) {
         .map((r, i) => `[[${i + 1}]] ${r.title}\nURL: ${r.url}`)
         .join("\n\n");
 
-      const sys =
-`You are a helpful assistant with web context. Use ONLY the sources below to answer.
-Cite sources inline like [1], [2] that match the list. Include relevant URLs.
-If sources don't answer the question, say you couldn't find enough info.
-
-Sources:
-${itemsForPrompt || "No results."}`;
+      const sys = `${customSystemPrompt}\n\nSources:\n${itemsForPrompt || "No results."}`;
 
       enhancedMessages = [{ role: "system", content: sys }, ...messages];
       res.setHeader("X-Web-Used", "1");
@@ -200,12 +217,13 @@ ${itemsForPrompt || "No results."}`;
     } catch (err) {
       console.error("Web search error:", err);
       enhancedMessages = [
-        ...messages,
-        { role: "system", content: "Web search failed; answer without browsing and say so politely." },
+        { role: "system", content: customSystemPrompt + "\nWeb search failed; answer without browsing and say so politely." },
+        ...messages
       ];
       res.setHeader("X-Web-Used", "0");
     }
   } else {
+    enhancedMessages = [{ role: "system", content: customSystemPrompt }, ...messages];
     res.setHeader("X-Web-Used", "0");
   }
 
@@ -248,7 +266,6 @@ ${itemsForPrompt || "No results."}`;
   let reply = "";
 
   const finalize = async () => {
-    // Save assistant message
     if (reply) {
       try {
         await saveMessage(conversationId, "assistant", reply.slice(0, 100000), { model: MODEL, webUsed: useWeb });
@@ -256,7 +273,6 @@ ${itemsForPrompt || "No results."}`;
         console.error("save assistant msg error:", e);
       }
     }
-    // Generate and set the title once per conversation
     if (firstUserMsg && conversationId) {
       try {
         const title = await generateTitle(apiKey, firstUserMsg);
