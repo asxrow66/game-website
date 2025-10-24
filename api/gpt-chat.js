@@ -5,7 +5,7 @@
 import db from "../db.js";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-const MODEL = "gpt-4o-mini";
+const MODEL = "gpt-4.1-mini";
 const MAX_TOKENS = 700;
 
 /* ---------------- CORS ---------------- */
