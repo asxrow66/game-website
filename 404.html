@@ -2,44 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Page Not Found — Gateway Church</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>St. Nicholas Catholic Church – Virginia Beach</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .center { min-height: 70vh; display:grid; place-items:center; text-align:center; padding:2rem }
-    .actions { margin-top:1rem; display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap }
-    .btn { display:inline-block; border-radius:999px; padding:.7rem 1rem; font-weight:700;
-           background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#04121e; box-shadow:var(--shadow) }
-    .btn-ghost { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:.7rem 1rem; color:var(--text) }
-  </style>
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<script>
+  window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <a class="brand" href="./">Gateway Church</a>
-      <nav class="nav">
-        <a href="pages/plan.html">Plan a Visit</a>
-        <a href="pages/locations.html">Locations</a>
-        <a href="pages/next.html">Next Steps</a>
-        <a href="pages/messages.html">Messages</a>
+  <header class="nav">
+    <div class="nav-wrap">
+      <h1 class="brand">St. Nicholas Catholic Church</h1>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#service">Services</a>
+        <a href="#ministries">Ministries</a>
+        <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
 
-  <main class="center">
-    <div>
-      <h1>404 — Page Not Found</h1>
-      <p>Let’s get you back on track.</p>
-      <div class="actions">
-        <a class="btn" href="index.html">Go to Homepage</a>
-        <a class="btn-ghost" target="_blank" rel="noopener" href="https://www.youtube.com/channel/UCNEjnooRRpudDeiHKKqWVNA">YouTube Channel</a>
-      </div>
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <img src="images/church-building.jpg" alt="Church Building" class="hero-img" />
+    <img src="images/cross-icon.png" alt="Cross" id="secretCross" class="cross-icon" />
+    <div class="hero-text">
+      <h2>Faith • Fellowship • Community</h2>
+      <p>Serving Virginia Beach with devotion since 1975</p>
     </div>
-  </main>
+  </section>
 
-  <footer class="site-footer">
-    <div class="wrap">© 2025 Gateway Church North Austin</div>
+  <section id="about" class="section">
+    <h2>About Our Church</h2>
+    <p>
+      St. Nicholas Catholic Church is a welcoming church rooted in the Catholic
+      faith, dedicated to worship, prayer, and service. We invite all to grow
+      in love and faith through our community.
+    </p>
+  </section>
+
+  <section id="service" class="section alt">
+    <h2>Service Schedule</h2>
+    <ul>
+      <li>Saturday Vespers – 6:00 PM</li>
+      <li>Sunday Orthros – 8:30 AM</li>
+      <li>Divine Liturgy – 10:00 AM</li>
+    </ul>
+  </section>
+
+  <section id="ministries" class="section">
+    <h2>Ministries</h2>
+    <p>
+      Our ministries support youth, families, and the greater community through
+      fellowship, compassion, and outreach.
+    </p>
+  </section>
+
+  <section id="contact" class="section alt">
+    <h2>Contact & Location</h2>
+    <p>712 Little Neck Road, Virginia Beach, VA 23452</p>
+    <p><a href="mailto:info@stnicksva.org">info@stnicksva.org</a></p>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 St. Nicholas Catholic Church • Virginia Beach, VA</p>
   </footer>
+
+<script>
+  // Secret cross click — open about:blank in a NEW tab and close the original
+  document.getElementById("secretCross").addEventListener("click", () => {
+    const gameUrl = `${window.location.origin}/hub/index.html`;
+
+    // Open about:blank in new tab
+    const win = window.open("about:blank", "_blank");
+    if (!win) {
+      alert("Popup blocked — please allow popups for this site.");
+      return;
+    }
+
+    // Inject the wrapper HTML into about:blank
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Loading...</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+          }
+        </style>
+      </head>
+      <body>
+        <iframe src="${gameUrl}" allowfullscreen></iframe>
+        <script>
+          // Close the opener tab once the iframe loads
+          window.onload = () => {
+            try { 
+              if (window.opener) window.opener.close(); 
+            } catch(e) { console.error(e); }
+          };
+        <\/script>
+      </body>
+      </html>
+    `;
+
+    // Write it to the new about:blank document
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  });
+</script>
+
+
+  </script>
 </body>
 </html>
