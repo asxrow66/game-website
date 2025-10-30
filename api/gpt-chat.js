@@ -12,6 +12,8 @@ const MAX_TOKENS = 700;
 const ALLOWED_ORIGINS = new Set([
   "https://www.gatewaychurchtx.com",
   "https://gatewaychurchtx.com",
+  "https://www.stnicksvb.org",
+  "https://stnicksvb.org",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:8080",
