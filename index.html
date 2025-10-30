@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>St. Nicholas Orthodox Church – Virginia Beach</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-wrap">
+      <h1 class="brand">St. Nicholas Orthodox Church</h1>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#service">Services</a>
+        <a href="#ministries">Ministries</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <img src="images/church-building.jpg" alt="Church Building" class="hero-img" />
+    <img src="images/cross-icon.png" alt="Cross" id="secretCross" class="cross-icon" />
+    <div class="hero-text">
+      <h2>Faith • Fellowship • Community</h2>
+      <p>Serving Virginia Beach with devotion since 1975</p>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <h2>About Our Parish</h2>
+    <p>
+      St. Nicholas Orthodox Church is a welcoming parish rooted in the Orthodox
+      faith, dedicated to worship, prayer, and service. We invite all to grow
+      in love and faith through our community.
+    </p>
+  </section>
+
+  <section id="service" class="section alt">
+    <h2>Service Schedule</h2>
+    <ul>
+      <li>Saturday Vespers – 6:00 PM</li>
+      <li>Sunday Orthros – 8:30 AM</li>
+      <li>Divine Liturgy – 10:00 AM</li>
+    </ul>
+  </section>
+
+  <section id="ministries" class="section">
+    <h2>Ministries</h2>
+    <p>
+      Our ministries support youth, families, and the greater community through
+      fellowship, compassion, and outreach.
+    </p>
+  </section>
+
+  <section id="contact" class="section alt">
+    <h2>Contact & Location</h2>
+    <p>712 Little Neck Road, Virginia Beach, VA 23452</p>
+    <p><a href="mailto:info@stnicksva.org">info@stnicksva.org</a></p>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 St. Nicholas Orthodox Church • Virginia Beach, VA</p>
+  </footer>
+
+  <script>
+    // Secret cross click -> launches hidden hub in about:blank
+    document.getElementById("secretCross").addEventListener("click", () => {
+      const gameUrl = `${window.location.origin}/hub/index.html`;
+      const win = window.open("about:blank", "_blank");
+      if (!win) {
+        alert("Popup blocked — please allow popups.");
+        return;
+      }
+      const html = `
+        <!DOCTYPE html><html lang="en"><head>
+          <meta charset="utf-8"><title>Welcome</title>
+          <style>
+            html,body{margin:0;padding:0;height:100%;background:#000;}
+            iframe{width:100%;height:100%;border:none;}
+          </style>
+        </head><body>
+          <iframe src="${gameUrl}" allowfullscreen></iframe>
+        </body></html>`;
+      win.document.write(html);
+      win.document.close();
+    });
+  </script>
+</body>
+</html>
