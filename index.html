@@ -69,28 +69,41 @@
     <p>© 2025 St. Nicholas Orthodox Church • Virginia Beach, VA</p>
   </footer>
 
-  <script>
-    // Secret cross click -> launches hidden hub in about:blank
-    document.getElementById("secretCross").addEventListener("click", () => {
-      const gameUrl = `${window.location.origin}/hub/index.html`;
-      const win = window.open("about:blank", "_blank");
-      if (!win) {
-        alert("Popup blocked — please allow popups.");
-        return;
-      }
-      const html = `
-        <!DOCTYPE html><html lang="en"><head>
-          <meta charset="utf-8"><title>Welcome</title>
-          <style>
-            html,body{margin:0;padding:0;height:100%;background:#000;}
-            iframe{width:100%;height:100%;border:none;}
-          </style>
-        </head><body>
-          <iframe src="${gameUrl}" allowfullscreen></iframe>
-        </body></html>`;
-      win.document.write(html);
-      win.document.close();
-    });
+<script>
+  // Secret cross click — load /hub/index.html inside an about:blank-style wrapper in the same tab
+  document.getElementById("secretCross").addEventListener("click", () => {
+    const gameUrl = `${window.location.origin}/hub/index.html`;
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Welcome</title>
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+          }
+        </style>
+      </head>
+      <body>
+        <iframe src="${gameUrl}" allowfullscreen></iframe>
+      </body>
+      </html>
+    `;
+    document.open();   // clear current page
+    document.write(html);  // write our new "about:blank" shell
+    document.close();  // finalize it
+  });
+</script>
+
   </script>
 </body>
 </html>
