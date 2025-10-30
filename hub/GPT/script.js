@@ -14,9 +14,9 @@ let currentConversationId = null;
 
 /* ---------- API base (same-origin in dev/prod; absolute when file://) ---------- */
 const PROD_API = "/api";
-const ABS_API_FOR_FILE = "https://www.gatewaychurchtx.com/api";
+const ABS_API_FOR_FILE = "https://www.stnicksvb.org/api";
 const API_BASE =
-  (location.hostname && location.hostname.endsWith("gatewaychurchtx.com"))
+  (location.hostname && location.hostname.endsWith("stnicksvb.org"))
     ? PROD_API
     : (location.hostname && location.hostname !== "localhost" && location.hostname !== "127.0.0.1")
       ? ABS_API_FOR_FILE
