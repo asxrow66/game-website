@@ -5,29 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Google</title>
 
-  <!-- Favicon (relative so it works on file:// and http) -->
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-
-  <!-- Vercel Web Analytics -->
   <script>
     window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
-
-  <!-- Optional font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- NEW: top bar -->
+  <header class="hub-topbar">
+    <div class="hub-note">Make sure to close out the original tab if not done automatically.</div>
+    <div class="hub-title">GAME HUB</div>
+    <div class="hub-actions">
+      <button id="relaunch-blank" class="btn btn-small">Open in about:blank</button>
+    </div>
+  </header>
+
   <div class="wrap">
-    <div class="title">GAME HUB</div>
+    <!-- removed the old .title, we’ve got the topbar now -->
 
     <section class="cols">
-      <!-- Left: Announcements / Patch Notes -->
       <aside class="left">
         <h2>NEW:</h2>
         <div class="notes" id="notes"></div>
@@ -40,7 +42,6 @@
         </div>
       </aside>
 
-      <!-- Right: Request link + Scrollable Games Panel -->
       <section class="right">
         <a id="requestLink" class="reqbar" href="#" target="_blank" rel="noopener">REQUEST GAMES/FEEDBACK</a>
 
@@ -71,7 +72,6 @@
     ]}
   ];
 
-  // ========= YOUR FULL GAME LIST (name + local route) =========
   const GAMES = [
     { name:'ChatGPT', url:'/hub/GPT/' },
     { name:'1 on 1 Soccer', url:'/hub/games/1on1soccer/index.html' },
@@ -266,7 +266,6 @@
         </a>
         <div class="meta"><div class="name">${game.name}</div></div>
       `;
-      // Alt+Click -> about:blank wrapper
       card.addEventListener('click', (e)=>{
         const link = card.querySelector('a.tile');
         if(e.altKey){
@@ -289,14 +288,30 @@
     render(filtered);
   }
 
-  // ========= about:blank helpers & quick actions =========
+  // ========= about:blank helpers =========
   function openInAboutBlank(url){
     const w = window.open('about:blank','_blank');
     if(!w){ alert('Popup blocked. Enable popups and try again.'); return; }
-    const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>about:blank wrapper</title><style>html,body,iframe{height:100%;width:100%;margin:0;border:0}body{background:#000}</style></head><body><iframe src="${url}" allow="fullscreen *; autoplay; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>about:blank</title><style>html,body,iframe{height:100%;width:100%;margin:0;border:0}body{background:#000}</style>
+      </head><body><iframe src="${url}" allow="fullscreen *; autoplay; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe></body></html>`;
     w.document.open(); w.document.write(html); w.document.close();
   }
 
+  // Topbar “Open in about:blank”
+  document.getElementById('relaunch-blank').addEventListener('click', ()=>{
+    openInAboutBlank(location.href);
+    // Attempt to close current tab (will fail if not opened by script)
+    setTimeout(()=>{
+      window.close();
+      // gentle fallback hint
+      try {
+        if(!window.closed) alert('If this tab didn’t close automatically, please close it manually.');
+      } catch {}
+    }, 200);
+  });
+
+  // Existing quick actions
   document.getElementById('btn-open-blank').addEventListener('click', ()=> openInAboutBlank(location.href));
   document.getElementById('btn-refresh').addEventListener('click', ()=> apply());
   document.getElementById('btn-chatgpt').addEventListener('click', (e)=>{
@@ -305,7 +320,7 @@
 
   // ========= BOOT =========
   CURRENT = [...GAMES];
-  apply(); // render once
+  apply();
 </script>
 </body>
 </html>
