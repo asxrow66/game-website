@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Golf Orbit</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="https://assets.msn.com/staticsb/statics/latest/msstart-games-sdk/msstart-v1.0.0-rc.20.min.js"></script>
+</head>
+<body>
+    <div id="unity-container">
+        <canvas id="unity-canvas" width="900" height="600" tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+        <div id="unity-warning"></div>
+    </div>
+
+    <script>
+        window.addEventListener("load", function () {
+            if ("ServiceWorker" in navigator) {
+                navigator.serviceWorker.register("ServiceWorker.js");
+            }
+        });
+
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+        var warningBanner = document.querySelector("#unity-warning");
+
+        function unityShowBanner(msg, type) {
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(function () {
+                    warningBanner.removeChild(div);
+                    updateBannerVisibility();
+                }, 5000);
+            }
+            updateBannerVisibility();
+        }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/9853637125e801e9aae48e78dbbdcfca.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/c435997b2cc2b4e5ff1d329762ee774d.data.unityweb",
+        frameworkUrl: buildUrl + "/04a051262f8f16406986e06b8539c371.framework.js.unityweb",
+        codeUrl: buildUrl + "/41e18e97d75251175935126c5d24b998.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "TapNationSAS",
+        productName: "Golf Orbit",
+        productVersion: "1.2",
+        showBanner: unityShowBanner,
+      };
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+
+        loadingBar.style.display = "block";
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                progressBarFull.style.width = 100 * progress + "%";
+            }).then((unityInstance) => {
+                window.gameInstance = unityInstance; // ✅ Unity is ready now
+                loadingBar.style.display = "none";
+
+                // ✅ Preload ads only AFTER Unity is initialized
+                LoadRewardedAd();
+                LoadInterstitialAd();
+
+            }).catch((message) => {
+                alert(message);
+            });
+        };
+        document.body.appendChild(script);
+    </script>
+    <script>
+
+        function NotifyMuteAudio()
+        {
+            $msstart.notifyGameMuted();
+        }
+        function NotifyUnmuteAudio() {
+            $msstart.notifyGameUnmuted();
+        }
+
+    </script>
+    <script>
+        // GLOBAL variables for ads
+        let interstitialAdInstance = null;
+        let rewardedAdInstance = null;
+
+        // Load interstitial ad
+        function LoadInterstitialAd() {
+            $msstart.loadAdsAsync().then(ad => {
+                interstitialAdInstance = ad;
+                console.log('Interstitial loaded');
+            }).catch(err => {
+                console.error('Interstitial load failed', err);
+            });
+        }
+
+        // Show interstitial ad
+        function ShowInterstitialAd() {
+            if (!interstitialAdInstance) {
+                console.warn('Interstitial ad not loaded');
+                return;
+            }
+            gameInstance.SendMessage('MSStartIntegration', 'MuteAudio');
+            $msstart.showAdsAsync(interstitialAdInstance.instanceId).then(ad => {
+                ad.showAdsCompletedAsync.then(() => {
+                    console.log('Interstitial completed');
+                    gameInstance.SendMessage('MSStartIntegration', 'UnmuteAudio');
+                    LoadInterstitialAd(); // Reload for next use
+                }).catch(err => {
+                    gameInstance.SendMessage('MSStartIntegration', 'UnmuteAudio');
+                    console.error('Interstitial show error', err);
+                });
+            }).catch(err => {
+                console.error('ShowAdsAsync error', err);
+            });
+        }
+
+        // Load rewarded ad
+        function LoadRewardedAd() {
+            $msstart.loadAdsAsync(true).then(ad => {
+                rewardedAdInstance = ad;
+                console.log('Rewarded loaded');
+            }).catch(err => {
+                console.error('Rewarded load failed', err);
+            });
+        }
+
+        // Show rewarded ad
+ function ShowRewardedAd() {
+            if (!rewardedAdInstance) {
+                console.warn('Rewarded ad not loaded');
+                return;
+            }
+
+            // 🔇 Mute game audio before showing ad
+            if (typeof gameInstance !== 'undefined' && gameInstance.SendMessage) {
+                gameInstance.SendMessage('MSStartIntegration', 'MuteAudio');
+            } else {
+                console.error('❌ Unity gameInstance.SendMessage not ready');
+                return; // Exit early if Unity not ready
+            }
+
+            $msstart.showAdsAsync(rewardedAdInstance.instanceId).then(ad => {
+                ad.showAdsCompletedAsync.then(() => {
+                    console.log('Rewarded ad watched fully');
+                    if (typeof gameInstance !== 'undefined' && gameInstance.SendMessage) {
+                        gameInstance.SendMessage('MSStartIntegration', 'OnRewardedAdComplete');
+                    }
+                    // 🔊 Unmute game audio after ad
+                    if (typeof gameInstance !== 'undefined' && gameInstance.SendMessage) {
+                        gameInstance.SendMessage('MSStartIntegration', 'UnmuteAudio');
+                    }
+                    LoadRewardedAd(); // Reload for next time
+                }).catch(err => {
+                    console.warn('Rewarded ad skipped or failed', err);
+                    // 🔊 Unmute game audio even if skipped
+                    if (typeof gameInstance !== 'undefined' && gameInstance.SendMessage) {
+                        gameInstance.SendMessage('MSStartIntegration', 'UnmuteAudio');
+                    }
+                });
+            }).catch(err => {
+                console.error('ShowAdsAsync error', err);
+                // 🔊 Unmute game audio on error
+                if (typeof gameInstance !== 'undefined' && gameInstance.SendMessage) {
+                    gameInstance.SendMessage('MSStartIntegration', 'UnmuteAudio');
+                }
+            });
+        }
+
+    </script>
+
+</body>
+</html>
+
+
+

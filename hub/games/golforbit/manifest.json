@@ -1,0 +1,37 @@
+{
+    "name": "Golf Orbit",
+    "short_name": "Golf Orbit",
+    "description": "One shot golf simulator is the battle of golf rivals to become the golf king of the universe. Be a part of Golf Orbit rocket league.",
+    "start_url": "index.html",
+    "display": "fullscreen",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "id": "TapNationSAS.GolfOrbit",
+    "ms_start_compatible": true,
+    "publisher": "TapNation SAS",
+    "dir": "auto",
+    "orientation": "any",
+    "version": "1.1.0",
+    "categories": [
+        "games"
+    ],
+    "launch_handler": {
+        "client_mode": "auto"
+    },
+    "icons": [
+        {
+            "src": "icon-1920x1080.png",
+            "sizes": "1920x1080",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+
+}
+
+
+
