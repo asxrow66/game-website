@@ -70,30 +70,24 @@
   </footer>
 
 <script>
-  // Secret cross click — open about:blank in a NEW tab and close the original
+  // Secret cross click — open hub anonymously using blob URL
   document.getElementById("secretCross").addEventListener("click", () => {
     const gameUrl = `${window.location.origin}/hub/index.html`;
 
-    // Open about:blank in new tab
-    const win = window.open("about:blank", "_blank");
-    if (!win) {
-      alert("Popup blocked — please allow popups for this site.");
-      return;
-    }
-
-    // Inject the wrapper HTML into about:blank
+    // Create HTML content for the launcher
     const html = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="utf-8">
-        <title>Loading...</title>
+        <title>Games</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
           html, body {
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden;
             background: #000;
           }
           iframe {
@@ -106,26 +100,26 @@
       </head>
       <body>
         <iframe src="${gameUrl}" allowfullscreen></iframe>
-        <script>
-          // Close the opener tab once the iframe loads
-          window.onload = () => {
-            try { 
-              if (window.opener) window.opener.close(); 
-            } catch(e) { console.error(e); }
-          };
-        <\/script>
       </body>
       </html>
     `;
 
-    // Write it to the new about:blank document
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
+    // Create a blob with the HTML content
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Open the blob URL in a new window
+    const win = window.open(blobUrl, "_blank");
+    if (!win) {
+      alert("Popup blocked — please allow popups for this site.");
+      return;
+    }
+
+    // Clean up the blob URL after a short delay
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 100);
   });
 </script>
-
-
-  </script>
 </body>
 </html>
